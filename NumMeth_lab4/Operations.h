@@ -19,3 +19,4 @@ void CreateMatr(double** A, double* eigs);
 double* CreateEigVect(double minEig, double step);
 double FindMaxElUnderMainDiag(double** A, int* _string, int* _column);
 int sign(double val);
+void CopyEMatr(double** matr);

@@ -241,3 +241,14 @@ double FindMaxElUnderMainDiag(double** matr, int* _string, int* _column) {
 int sign(double val) {
 	return val > 0 ? 1 : val == 0 ? 0 : -1;
 }
+
+void CopyEMatr(double** matr) {
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (i == j)
+				matr[i][j] = 1;
+			else
+				matr[i][j] = 0;
+		}
+	}
+}

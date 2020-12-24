@@ -38,25 +38,39 @@ void JacobiIterB(double** B, const double** B_prev, double c, double s, int strM
 	}
 }
 
-int JacobiFindEig(const double** A, double** B, double** Tk) {
+void JacobiIterT(double** Tk, double c, double s, int strM, int colM) {
+	
+}
+
+int JacobiFindEig(const double** A, double** B, double** Tk, double eps) {
+	int iterCount = 0;
 	int strM, colM;
 	double maxEl, p, q, d, r, c, s;
 	double** B_prev = malloc(sizeof(double*) * size);
-	for (int i = 0; i < size; i++)
+	double** Tcur = malloc(sizeof(double*) * size);
+	for (int i = 0; i < size; i++) {
 		B_prev[i] = malloc(sizeof(double) * size);
+		Tcur[i] = malloc(sizeof(double) * size);
+	}
+
+	CopyEMatr(Tk);
 	CopyMatr(B_prev, A, ALLMATR);
 
-	CopyMatr(B, B_prev, ALLMATR);
-	maxEl = FindMaxElUnderMainDiag(B, &strM, &colM);
-	p = 2 * maxEl;
-	q = B[strM][strM] - B[colM][colM];
-	FindCS(&c, &s, p, q);
-	JacobiIterB(B, B_prev, c, s, strM, colM);
-
+	do {
+		CopyMatr(B, B_prev, ALLMATR);
+		maxEl = FindMaxElUnderMainDiag(B, &strM, &colM);
+		p = 2 * maxEl;
+		q = B[strM][strM] - B[colM][colM];
+		FindCS(&c, &s, p, q);
+		JacobiIterB(B, B_prev, c, s, strM, colM);
+		iterCount++;
+	} while (fabs(maxEl)>=eps);
+	
 	for (int i = 0; i < size; i++) {
 		free(B_prev[i]);
 	}
 	free(B_prev);
+	return iterCount;
 }
 
 void main(void) {

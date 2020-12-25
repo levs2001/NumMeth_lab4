@@ -223,15 +223,17 @@ double* CreateEigVect(double minEig, double step) {
 	return eigs;
 }
 
-double FindMaxElUnderMainDiag(double** matr, int* _string, int* _column) {
-	double max = matr[1][0];
-
+double FindMaxElUnderMainDiag(double** matr, int* strM, int* colM) {
+	*strM = 1;
+	*colM = 0;
+	double max = matr[*strM][*colM];
+	
 	for (int i = 1; i < size; i++) {
 		for (int j = 0; j < i; j++) {
 			if (matr[i][j] > max) {
 				max = matr[i][j];
-				*_string = i;
-				*_column = j;
+				*strM = i;
+				*colM = j;
 			}
 		}
 	}

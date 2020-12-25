@@ -25,8 +25,8 @@ void FindCS(double* c, double* s, double p, double q) {
 void JacobiIterB(double** B, const double** B_prev, double c, double s, int strM, int colM) {
 	B[strM][strM] = pow(c, 2) * B_prev[strM][strM] + pow(s, 2) * B_prev[colM][colM] + 2 * c * s * B_prev[strM][colM];
 	B[colM][colM] = pow(s, 2) * B_prev[strM][strM] + pow(c, 2) * B_prev[colM][colM] - 2 * c * s * B_prev[strM][colM];
-	B[strM][colM] = 0;
-	B[colM][strM] = 0;
+	B[strM][colM] = (pow(c, 2) - pow(s, 2)) * B_prev[strM][colM] + c * s * (B_prev[colM][colM] - B_prev[strM][strM]);
+	B[colM][strM] = B[strM][colM];
 
 	for (int m = 0; m < size; m++) {
 		if (m != strM && m != colM) {
@@ -39,33 +39,52 @@ void JacobiIterB(double** B, const double** B_prev, double c, double s, int strM
 }
 
 void JacobiIterT(double** Tk, double c, double s, int strM, int colM) {
-	
+	double** Tcur = malloc(sizeof(double*) * size);
+	double** TkCopy = malloc(sizeof(double*) * size);
+	for (int i = 0; i < size; i++) {
+		Tcur[i] = malloc(sizeof(double) * size);
+		TkCopy[i] = malloc(sizeof(double) * size);
+	}
+	CopyMatr(TkCopy, Tk, ALLMATR);
+	CopyEMatr(Tcur);
+	Tcur[strM][strM] = c;
+	Tcur[colM][colM] = c;
+	Tcur[colM][strM] = s;
+	Tcur[strM][colM] = -s;
+	CompMatr(Tk, TkCopy, Tcur, size, size, 0);
+	for (int i = 0; i < size; i++) {
+		free(Tcur[i]);
+		free(TkCopy[i]);
+	}
+	free(Tcur);
+	free(TkCopy);
 }
 
 int JacobiFindEig(const double** A, double** B, double** Tk, double eps) {
+	//B - matrix of eigenvalues (name B as in book)
+	//Tk - matrix of own vectors (name Tk as in book)
 	int iterCount = 0;
 	int strM, colM;
 	double maxEl, p, q, d, r, c, s;
 	double** B_prev = malloc(sizeof(double*) * size);
-	double** Tcur = malloc(sizeof(double*) * size);
 	for (int i = 0; i < size; i++) {
 		B_prev[i] = malloc(sizeof(double) * size);
-		Tcur[i] = malloc(sizeof(double) * size);
 	}
 
 	CopyEMatr(Tk);
-	CopyMatr(B_prev, A, ALLMATR);
+	CopyMatr(B, A, ALLMATR);
 
 	do {
-		CopyMatr(B, B_prev, ALLMATR);
+		CopyMatr(B_prev, B, ALLMATR);
 		maxEl = FindMaxElUnderMainDiag(B, &strM, &colM);
 		p = 2 * maxEl;
 		q = B[strM][strM] - B[colM][colM];
 		FindCS(&c, &s, p, q);
 		JacobiIterB(B, B_prev, c, s, strM, colM);
+		JacobiIterT(Tk, c, s, strM, colM);
 		iterCount++;
-	} while (fabs(maxEl)>=eps);
-	
+	} while (fabs(maxEl) >= eps);
+
 	for (int i = 0; i < size; i++) {
 		free(B_prev[i]);
 	}
@@ -74,15 +93,33 @@ int JacobiFindEig(const double** A, double** B, double** Tk, double eps) {
 }
 
 void main(void) {
+	double eps = 0.01;
 	double* eigs = NULL;
 	double** A = malloc(sizeof(double*) * size);
+	double** B = malloc(sizeof(double*) * size);
+	double** Tk = malloc(sizeof(double*) * size);
 	for (int i = 0; i < size; i++) {
 		A[i] = malloc(sizeof(double) * size);
+		B[i] = malloc(sizeof(double) * size);
+		Tk[i] = malloc(sizeof(double) * size);
 	}
+
 	eigs = CreateEigVect(1, 1);
+	
 	srand(time(0));
 	CreateMatr(A, eigs);
+	/*A[0][0] = 1;
+	A[0][1] = 2;
+	A[1][0] = 3;
+	A[1][1] = 4;*/
 	PrintMatrix(A, ALLMATR);
+	printf("\n");
+	JacobiFindEig(A, B, Tk, eps);
+	printf("\nEigs:\n");
+	PrintMatrix(B, ALLMATR);
+	printf("\nOwn vectors:\n");
+	PrintMatrix(Tk, ALLMATR);
+
 	for (int i = 0; i < size; i++) {
 		free(A[i]);
 	}

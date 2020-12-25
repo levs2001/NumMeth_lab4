@@ -230,7 +230,7 @@ double FindMaxElUnderMainDiag(double** matr, int* strM, int* colM) {
 	
 	for (int i = 1; i < size; i++) {
 		for (int j = 0; j < i; j++) {
-			if (matr[i][j] > max) {
+			if (fabs(matr[i][j]) > max) {
 				max = matr[i][j];
 				*strM = i;
 				*colM = j;

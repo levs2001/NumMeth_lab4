@@ -20,3 +20,4 @@ double* CreateEigVect(double minEig, double step);
 double FindMaxElUnderMainDiag(double** A, int* _string, int* _column);
 int sign(double val);
 void CopyEMatr(double** matr);
+double FindMax(double** A, int* index_io, int* index_jo);

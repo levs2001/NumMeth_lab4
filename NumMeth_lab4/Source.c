@@ -5,7 +5,7 @@
 #include "Operations.h"
 #pragma warning(disable:4996)
 
-int size = 3;
+int size = 10;
 
 void FindCS(double* c, double* s, double p, double q) {
 	double r;
@@ -76,7 +76,7 @@ int JacobiFindEig(const double** A, double** B, double** Tk, double eps) {
 
 	do {
 		CopyMatr(B_prev, B, ALLMATR);
-		maxEl = FindMaxElUnderMainDiag(B, &strM, &colM);
+		maxEl = FindMax(B, &strM, &colM); // FindMaxElUnderMainDiag(B, &strM, &colM);
 		p = 2 * maxEl;
 		q = B[strM][strM] - B[colM][colM];
 		FindCS(&c, &s, p, q);
@@ -92,8 +92,24 @@ int JacobiFindEig(const double** A, double** B, double** Tk, double eps) {
 	return iterCount;
 }
 
+void PrintIterCountForStepEigs(double stepEig, char* filename, double** A, double** B, double** Tk) {
+	int iterCount = 0;
+	double eps = 0;
+	double* eigs = CreateEigVect(100, stepEig);
+	FILE* file = fopen(filename, "a");
+	CreateMatr(A, eigs);
+	for (eps = 1e-6; eps < 1; eps *= 10) {
+		PrintMatrix(A, ALLMATR);
+		iterCount = JacobiFindEig(A, B, Tk, eps);
+		fprintf(file, "%d\t", iterCount);
+	}
+	fprintf(file, "\n");
+	free(eigs);
+}
+
 void main(void) {
-	double eps = 0.01;
+	int iterCount = 0;
+	double eps = 1e-5;
 	double* eigs = NULL;
 	double** A = malloc(sizeof(double*) * size);
 	double** B = malloc(sizeof(double*) * size);
@@ -104,22 +120,24 @@ void main(void) {
 		Tk[i] = malloc(sizeof(double) * size);
 	}
 
-	eigs = CreateEigVect(1, 1);
 	
 	srand(time(0));
-	CreateMatr(A, eigs);
 	//A[0][0] = 1;
 	//A[0][1] = 2;
 	//A[1][0] = 3;
 	//A[1][1] = 4;
-	PrintMatrix(A, ALLMATR);
-	printf("\n");
-	JacobiFindEig(A, B, Tk, eps);
-	printf("\nEigs:\n");
-	PrintMatrix(B, ALLMATR);
-	printf("\nOwn vectors:\n");
-	PrintMatrix(Tk, ALLMATR);
-
+	//eigs = CreateEigVect(1, 1e2);
+	//CreateMatr(A, eigs);
+	//PrintMatrix(A, ALLMATR);
+	//printf("\n");
+	//iterCount = JacobiFindEig(A, B, Tk, eps);
+	//printf("\nEigs:\n");
+	//PrintMatrix(B, ALLMATR);
+	//printf("\nOwn vectors:\n");
+	//PrintMatrix(Tk, ALLMATR);
+	for (double step = 1e1; step < 1e2; step*=100) {
+		PrintIterCountForStepEigs(step, "D:\\MyProgramms\\Num_Meth_Lab4\\IterCount.txt", A, B, Tk);
+	}
 	for (int i = 0; i < size; i++) {
 		free(A[i]);
 	}

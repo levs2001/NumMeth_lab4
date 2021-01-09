@@ -196,7 +196,7 @@ void CreateMatr(double** A, double* eigs) {
 
 	//Задаём рандомный вектор W
 	for (int i = 0; i < size; i++) {
-		vect_W[i] = getRandRange(1, size);
+		vect_W[i] = getRandRange(1, 1000);
 	}
 	CreateDiagMatrix(D, eigs);
 	Q_MatrixGeneration(Q, vect_W);
@@ -238,6 +238,47 @@ double FindMaxElUnderMainDiag(double** matr, int* strM, int* colM) {
 		}
 	}
 	return max;
+}
+
+//Проба поиска другого max
+double FindMax(double** A, int* index_io, int* index_jo) {
+	double max = 0.0, temp = 0.0;
+	int io, jo;
+	int i, j;
+	double* rk = malloc(sizeof(double)*size);
+
+	//ищем rk
+	for (i = 0; i < size; ++i) {
+		rk[i] = 0.0;
+
+		for (j = 0; j < size; ++j) {
+			if (j != i)
+				rk[i] += (A[i][j] * A[i][j]);
+		}
+	}
+
+	//ищем io
+	for (i = 0; i < size; i++) {
+		if (max <= rk[i]) {
+			io = i;
+			max = rk[i];
+		}
+	}
+
+	max = 0.0;
+
+	//ищем jo
+	for (j = 0; j < size; ++j) {
+		temp = A[io][j];
+		if (j != io && max <= fabs(A[io][j])) {
+			jo = j;
+			max = fabs(A[io][j]);
+		}
+	}
+
+	(*index_io) = io;
+	(*index_jo) = jo;
+	return A[io][jo];
 }
 
 int sign(double val) {

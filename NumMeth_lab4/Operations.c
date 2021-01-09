@@ -215,10 +215,17 @@ void CreateMatr(double** A, double* eigs) {
 	free(tempM);
 }
 
-double* CreateEigVect(double minEig, double step) {
+double* CreateEigVect(double minEig, double step, double otd) {
 	double* eigs = malloc(sizeof(double) * size);
 	for (int i = 0; i < size; i++) {
-		eigs[i] = minEig + i * step;
+		if (i == size/2) {
+			eigs[i] = minEig + (i-1) * step+otd;
+		}
+		else if (i == size / 2 + 1) {
+			eigs[i] = minEig + (i - 2) * step + 2*otd;
+		}
+		else
+			eigs[i] = minEig + i * step;
 	}
 	return eigs;
 }
@@ -278,6 +285,7 @@ double FindMax(double** A, int* index_io, int* index_jo) {
 
 	(*index_io) = io;
 	(*index_jo) = jo;
+	free(rk);
 	return A[io][jo];
 }
 

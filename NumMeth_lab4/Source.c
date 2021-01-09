@@ -92,24 +92,26 @@ int JacobiFindEig(const double** A, double** B, double** Tk, double eps) {
 	return iterCount;
 }
 
-void PrintIterCountForStepEigs(double stepEig, char* filename, double** A, double** B, double** Tk) {
+void PrintIterCountForStepEigs(double otd, FILE* file, double** A, double** B, double** Tk) {
 	int iterCount = 0;
 	double eps = 0;
-	double* eigs = CreateEigVect(100, stepEig);
-	FILE* file = fopen(filename, "a");
+	double* eigs = CreateEigVect(1000, 1000, otd);
+	for (int i = 0; i < size; i++)
+		printf("%f\n", eigs[i]);
 	CreateMatr(A, eigs);
-	for (eps = 1e-6; eps < 1; eps *= 10) {
-		PrintMatrix(A, ALLMATR);
+	for (eps = 1e-5; eps < 10; eps *= 10) {
 		iterCount = JacobiFindEig(A, B, Tk, eps);
+		printf("%d\t", iterCount);
 		fprintf(file, "%d\t", iterCount);
 	}
+	printf("\n");
 	fprintf(file, "\n");
 	free(eigs);
 }
 
 void main(void) {
 	int iterCount = 0;
-	double eps = 1e-5;
+	double eps = 1e-4;
 	double* eigs = NULL;
 	double** A = malloc(sizeof(double*) * size);
 	double** B = malloc(sizeof(double*) * size);
@@ -120,13 +122,17 @@ void main(void) {
 		Tk[i] = malloc(sizeof(double) * size);
 	}
 
-	
+
 	srand(time(0));
 	//A[0][0] = 1;
 	//A[0][1] = 2;
 	//A[1][0] = 3;
 	//A[1][1] = 4;
-	//eigs = CreateEigVect(1, 1e2);
+	//eigs = CreateEigVect(1000, 1000, 10);
+	//for (int i = 0; i < size; i++) {
+	//	printf("%f\t", eigs[i]);
+	//}
+	//printf("\n");
 	//CreateMatr(A, eigs);
 	//PrintMatrix(A, ALLMATR);
 	//printf("\n");
@@ -135,9 +141,12 @@ void main(void) {
 	//PrintMatrix(B, ALLMATR);
 	//printf("\nOwn vectors:\n");
 	//PrintMatrix(Tk, ALLMATR);
-	for (double step = 1e1; step < 1e2; step*=100) {
-		PrintIterCountForStepEigs(step, "D:\\MyProgramms\\Num_Meth_Lab4\\IterCount.txt", A, B, Tk);
+
+	FILE* file = fopen("D:\\MyProgramms\\Num_Meth_Lab4\\IterCount.txt", "w");
+	for (double otd = 1e-4; otd < 1e2; otd *= 10) {
+		PrintIterCountForStepEigs(otd, file, A, B, Tk);
 	}
+	
 	for (int i = 0; i < size; i++) {
 		free(A[i]);
 	}

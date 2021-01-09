@@ -16,7 +16,7 @@ double getRandRange(double min, double max);
 void CreateDiagMatrix(double** diagMatrix, double* eigs);
 void Q_MatrixGeneration(double** Matrix_Q, double* Vector_W);
 void CreateMatr(double** A, double* eigs);
-double* CreateEigVect(double minEig, double step);
+double* CreateEigVect(double minEig, double step, double otd);
 double FindMaxElUnderMainDiag(double** A, int* _string, int* _column);
 int sign(double val);
 void CopyEMatr(double** matr);
